@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Estudio Interactiva de Matemáticas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Dark Mode Neutrals -->
+    <!-- Application Structure Plan: Se ha diseñado una Single-Page Application (SPA) con un layout de dashboard. La estructura consiste en una barra de navegación lateral fija y un área de contenido principal. Esta arquitectura permite a los usuarios navegar rápidamente entre las diferentes unidades temáticas sin recargar la página, lo que facilita una experiencia de estudio fluida y no lineal. Dentro de cada unidad, el contenido se organiza en secciones colapsables (acordeones) para evitar la sobrecarga de información y permitir que el usuario se enfoque en un tema a la vez. Se incluyen herramientas interactivas (calculadoras, visualizadores) para transformar el aprendizaje pasivo en una experiencia activa y práctica, lo cual es ideal para estudiantes de programación. Esta estructura se eligió por su familiaridad, eficiencia y capacidad para presentar contenido denso de manera digerible y atractiva. -->
+    <!-- Visualization & Content Choices: 
+        - Unidad 1 (Sistemas de Numeración): Objetivo: Informar, Interactuar. Método: Texto y una calculadora de conversión de bases (HTML/JS) para aprendizaje práctico.
+        - Unidad 2 (Lógica): Objetivo: Organizar, Interactuar. Método: Texto, tablas HTML y un simulador de compuertas lógicas (HTML/JS) con toggles para entradas y visualización de salida en tiempo real.
+        - Unidad 3 (Matrices): Objetivo: Informar, Interactuar. Método: Texto y una calculadora de determinante 2x2 (HTML/JS) para solidificar el proceso de cálculo.
+        - Unidad 4 (Grafos): Objetivo: Visualizar, Relacionar. Método: Texto y una visualización de un grafo simple usando un gráfico de dispersión con líneas en Chart.js (Canvas) para representar nodos y aristas.
+        - Unidad 5 (Relaciones): Objetivo: Organizar, Visualizar. Método: Texto, tablas y diagramas de relación creados con HTML/CSS para mostrar conexiones.
+        - Unidad 6 (Recta en el Plano): Objetivo: Visualizar, Interactuar. Método: Texto y un graficador de rectas interactivo (Chart.js/Canvas) donde el usuario introduce pendiente e intercepto.
+        - Unidad 7 (Sistemas de Ecuaciones): Objetivo: Comparar, Visualizar. Método: Texto y gráficos de Chart.js (Canvas) para mostrar ejemplos de los tipos de sistemas (determinado, indeterminado, inconsistente).
+        - Unidad 8 (Análisis Combinatorio): Objetivo: Calcular, Interactuar. Método: Texto y una calculadora de permutaciones/combinaciones (HTML/JS).
+        Justificación: La combinación de texto claro con herramientas interactivas y visualizaciones en Canvas refuerza los conceptos teóricos con aplicación práctica, mejorando la retención y comprensión del estudiante. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif; /* Fuente de Google Fonts */
+            background-color: #1a202c; /* Fondo oscuro principal */
+            color: #e2e8f0; /* Texto claro principal */
+        }
+        .content-section h3 {
+            cursor: pointer;
+            user-select: none;
+        }
+        .content-section .content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+        .content-section.open .content {
+            max-height: 2000px; /* Ajustar según sea necesario */
+            transition: max-height 0.7s ease-in;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .active-link {
+            background-color: #4299e1; /* Azul más vibrante para el modo oscuro */
+            color: white;
+        }
+        /* Estilos específicos para elementos dentro de las herramientas */
+        .bg-white {
+            background-color: #2d3748; /* Fondo más oscuro para los componentes */
+            color: #e2e8f0;
+        }
+        .border-gray-300 {
+            border-color: #4a5568; /* Borde más oscuro */
+        }
+        .text-gray-700 {
+            color: #e2e8f0; /* Texto claro para etiquetas */
+        }
+        .bg-slate-100 {
+            background-color: #4a5568; /* Fondo para bloques de código/mono */
+            color: #e2e8f0;
+        }
+        .border {
+            border-color: #4a5568;
+        }
+        input[type="number"], input[type="text"] {
+            background-color: #1a202c; /* Fondo de inputs más oscuro */
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-gray-800 text-white p-4 transition-transform -translate-x-full sm:translate-x-0">
+            <h1 class="text-2xl font-bold mb-6">Guía de Estudio</h1>
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="#introduccion" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link active-link">Introducción</a></li>
+                    <li><a href="#unidad1" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link">Unidad 1: Sistemas de Num.</a></li>
+                    <li><a href="#unidad2" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link">Unidad 2: Lógica</a></li>
+                    <li><a href="#unidad3" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link">Unidad 3: Matrices</a></li>
+                    <li><a href="#unidad4" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link">Unidad 4: Grafos y Árboles</a></li>
+                    <li><a href="#unidad5" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link">Unidad 5: Relaciones</a></li>
+                    <li><a href="#unidad6" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link">Unidad 6: Recta en el Plano</a></li>
+                    <li><a href="#unidad7" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link">Unidad 7: Sist. de Ecuaciones</a></li>
+                    <li><a href="#unidad8" class="block py-2 px-4 rounded hover:bg-gray-700 nav-link">Unidad 8: Análisis Comb.</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile Header -->
+        <header class="sm:hidden fixed top-0 left-0 right-0 bg-gray-800 text-white p-4 flex justify-between items-center z-10">
+            <h1 class="text-xl font-bold">Guía de Estudio</h1>
+            <button id="menu-toggle" class="text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 sm:ml-64 p-6 pt-20 sm:pt-6">
+            <!-- Content will be injected here by JavaScript -->
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mainContent = document.getElementById('main-content');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+
+            const appData = {
+                introduccion: {
+                    title: "Introducción a la Guía de Estudio",
+                    content: `
+                        <p class="mb-4">Esta guía ha sido diseñada como una herramienta de repaso didáctica, directa y concisa, específicamente para el examen final de Matemáticas de la Tecnicatura Universitaria en Programación. Su objetivo primordial es consolidar los conocimientos esenciales del cuatrimestre y proporcionar estrategias prácticas para la resolución de ejercicios.</p>
+                        <p class="mb-4">La guía está estructurada por unidades temáticas. Para cada unidad, se presentarán los conceptos fundamentales, seguidos de ejercicios representativos extraídos de las guías prácticas, con pasos de resolución y estrategias clave. Se utilizarán ejemplos guía para ilustrar la aplicación de los conceptos, fomentando el aprendizaje activo.</p>
+                        <p>Además, se destacará la conexión intrínseca de cada unidad con los fundamentos y aplicaciones de la programación. Esta vinculación explícita de los conceptos matemáticos con el ámbito de la programación eleva el valor percibido de la asignatura, promoviendo una mayor implicación y motivación.</p>
+                    `
+                },
+                unidad1: {
+                    title: "Unidad 1: Sistemas de Numeración",
+                    sections: [
+                        { 
+                            title: "Conceptos Esenciales",
+                            content: `
+                                <p>Un sistema de numeración utiliza un conjunto finito de símbolos para representar números. La <strong>base (m)</strong> define la cantidad de cifras utilizadas. La notación moderna es posicional, donde el valor de una cifra depende de su posición.</p>
+                                <p class="font-mono bg-slate-100 p-2 rounded my-2 text-sm">...a<sub>3</sub>a<sub>2</sub>a<sub>1</sub>a<sub>0</sub>,a<sub>-1</sub>a<sub>-2</sub>...<sub>(m)</sub> = ... + a<sub>2</sub>m<sup>2</sup> + a<sub>1</sub>m<sup>1</sup> + a<sub>0</sub>m<sup>0</sup> + a<sub>-1</sub>m<sup>-1</sup> + ...</p>
+                                <p>Los sistemas más comunes en programación son Binario (base 2), Octal (base 8), Decimal (base 10) y Hexadecimal (base 16).</p>`
+                        },
+                        {
+                            title: "Herramienta: Conversor de Bases",
+                            content: `
+                                <p class="mb-4">Utiliza esta herramienta para convertir rápidamente un número decimal a otras bases comunes en programación. Esta interacción te ayudará a verificar tus cálculos y a familiarizarte con la representación de números en diferentes sistemas.</p>
+                                <div class="bg-white p-4 rounded-lg shadow-md">
+                                    <label for="decimalInput" class="block text-sm font-medium text-gray-700">Número Decimal:</label>
+                                    <input type="number" id="decimalInput" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Ej: 15">
+                                    <button id="convertBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Convertir</button>
+                                    <div id="conversionResults" class="mt-4 space-y-2"></div>
+                                </div>
+                            `
+                        },
+                        {
+                            title: "Operaciones Clave",
+                            content: `
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><strong>Descomposición Polinómica:</strong> Expresar un número como suma de potencias de su base.</li>
+                                    <li><strong>Cambio de Base:</strong>
+                                        <ul class="list-disc list-inside ml-6">
+                                            <li>De base 'm' a Decimal: Usar descomposición polinómica.</li>
+                                            <li>De Decimal a base 'm': Usar divisiones sucesivas (parte entera) y multiplicaciones sucesivas (parte fraccionaria).</li>
+                                            <li>Entre bases relacionadas (2, 8, 16): Agrupar o desagrupar dígitos.</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Complementos:</strong> Cruciales para representar números negativos y realizar restas en computadoras.</li>
+                                </ul>`
+                        },
+                        {
+                            title: "Relevancia para la Programación",
+                            content: `
+                                <p>El dominio de los sistemas de numeración es la piedra angular para comprender cómo las computadoras almacenan y procesan datos. El sistema binario es intrínseco a la lógica digital, mientras que el octal y hexadecimal son atajos para representar largas cadenas binarias de forma legible para los programadores. Es una habilidad práctica para la depuración de código, la lectura de direcciones de memoria y la comprensión de estructuras de datos de bajo nivel.</p>
+                            `
+                        }
+                    ]
+                },
+                unidad2: {
+                    title: "Unidad 2: Lógica Proposicional y Álgebra de Boole",
+                    sections: [
+                        {
+                            title: "Conceptos Esenciales",
+                            content: `<p>El <strong>Álgebra de Boole</strong> es una formalización matemática para representar información digital y modelar el comportamiento de circuitos lógicos. Sus elementos son variables lógicas (0 o 1) y operadores lógicos (AND, OR, NOT). Se rige por axiomas como las leyes conmutativas, distributivas y las <strong>Leyes de De Morgan</strong>: (a·b)' = a'+b' y (a+b)' = a'·b'.</p>`
+                        },
+                        {
+                            title: "Herramienta: Simulador de Compuertas Lógicas",
+                            content: `
+                                <p class="mb-4">Interactúa con las compuertas lógicas básicas para entender su funcionamiento. Cambia los valores de entrada y observa cómo cambia el resultado en tiempo real. Esto te ayudará a visualizar cómo funcionan las operaciones lógicas a nivel de hardware.</p>
+                                <div class="bg-white p-4 rounded-lg shadow-md space-y-4">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="font-bold w-12">Entradas:</span>
+                                        <label class="flex items-center">A: <input type="checkbox" id="gateInputA" class="ml-2 h-4 w-4 rounded"></label>
+                                        <label class="flex items-center">B: <input type="checkbox" id="gateInputB" class="ml-2 h-4 w-4 rounded"></label>
+                                    </div>
+                                    <div id="gateOutputs" class="space-y-2 font-mono"></div>
+                                </div>
+                            `
+                        },
+                        {
+                            title: "Relevancia para la Programación",
+                            content: `<p>El Álgebra de Boole es el lenguaje matemático del hardware. Cada compuerta lógica es una implementación de una operación booleana. Comprenderla permite razonar sobre la eficiencia de algoritmos a nivel de bits. Las leyes de De Morgan son herramientas para simplificar expresiones lógicas complejas, lo que se traduce en código más legible y eficiente (p. ej., al refactorizar condiciones <code>if</code>).</p>`
+                        }
+                    ]
+                },
+                unidad3: {
+                    title: "Unidad 3: Matrices y Determinantes",
+                     sections: [
+                        {
+                            title: "Conceptos Esenciales",
+                            content: `
+                                <p>Una <strong>matriz</strong> es un arreglo rectangular de números. Las operaciones clave incluyen suma, resta, producto por escalar y multiplicación de matrices. La multiplicación A·B solo es posible si las columnas de A igualan las filas de B.</p>
+                                <p>El <strong>determinante</strong> es un valor escalar asociado a una matriz cuadrada. La <strong>matriz inversa (A<sup>-1</sup>)</strong> existe si y solo si su determinante es distinto de cero.</p>
+                            `
+                        },
+                        {
+                            title: "Herramienta: Calculadora de Determinante 2x2",
+                            content: `
+                                <p class="mb-4">Calcula rápidamente el determinante de una matriz de 2x2. Esta herramienta te permite verificar tus cálculos y entender la fórmula $ad-bc$ en acción.</p>
+                                <div class="bg-white p-4 rounded-lg shadow-md">
+                                    <div class="grid grid-cols-2 gap-2 w-24">
+                                        <input type="number" id="det_a" class="w-10 text-center border rounded" value="1">
+                                        <input type="number" id="det_b" class="w-10 text-center border rounded" value="2">
+                                        <input type="number" id="det_c" class="w-10 text-center border rounded" value="3">
+                                        <input type="number" id="det_d" class="w-10 text-center border rounded" value="4">
+                                    </div>
+                                    <button id="calcDetBtn" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Calcular</button>
+                                    <p class="mt-4 font-mono">Determinante = <span id="determinantResult"></span></p>
+                                </div>
+                            `
+                        },
+                        {
+                            title: "Relevancia para la Programación",
+                            content: `<p>Las matrices son la forma natural de representar datos estructurados: imágenes (matrices de píxeles), estados de juegos (transformaciones 3D), tablas en bases de datos. La resolución de sistemas de ecuaciones con matrices es la base de problemas de optimización, machine learning y análisis de datos.</p>`
+                        }
+                    ]
+                },
+                unidad4: {
+                    title: "Unidad 4: Grafos y Árboles",
+                    sections: [
+                        {
+                            title: "Conceptos Esenciales",
+                            content: `<p>Los <strong>grafos</strong> son estructuras compuestas por <strong>vértices</strong> (nodos) y <strong>aristas</strong> (conexiones). Son fundamentales para modelar redes. Los <strong>árboles</strong> son un tipo especial de grafo: conectado y sin ciclos. Son una de las estructuras de datos más importantes en informática.</p>`
+                        },
+                        {
+                           title: "Visualización: Ejemplo de Grafo",
+                            content: `
+                                <p class="mb-4">A continuación se muestra una visualización de un grafo simple. Este tipo de estructura representa relaciones entre diferentes entidades, como amigos en una red social o ciudades conectadas por carreteras. La visualización ayuda a comprender conceptos como la conexidad y los caminos entre nodos.</p>
+                                <div class="chart-container bg-white p-4 rounded-lg shadow-md">
+                                    <canvas id="graphCanvas"></canvas>
+                                </div>`
+                        },
+                        {
+                            title: "Relevancia para la Programación",
+                            content: `<p>Redes sociales, GPS, dependencias de software, y algoritmos de búsqueda (BFS, DFS) se basan en la teoría de grafos. Los árboles se usan en sistemas de archivos, árboles de búsqueda binaria (para búsquedas eficientes) y en compiladores (árboles de análisis sintáctico).</p>`
+                        }
+                    ]
+                },
+                unidad5: {
+                    title: "Unidad 5: Relaciones",
+                     sections: [
+                        {
+                            title: "Conceptos Esenciales",
+                            content: `
+                                <p>Una <strong>relación</strong> es un subconjunto del producto cartesiano de dos conjuntos. Las propiedades clave son:</p>
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><strong>Reflexividad:</strong> Todo elemento se relaciona consigo mismo. (a,a) ∈ R.</li>
+                                    <li><strong>Simetría:</strong> Si (a,b) ∈ R, entonces (b,a) ∈ R.</li>
+                                    <li><strong>Transitividad:</strong> Si (a,b) ∈ R y (b,c) ∈ R, entonces (a,c) ∈ R.</li>
+                                </ul>
+                                <p>Una relación con las tres propiedades (reflexividad, simetría y transitividad) se clasifica como una <strong>Relación de Equivalencia</strong>.</p>
+                            `
+                        },
+                        {
+                           title: "Visualización: Propiedades de Relaciones",
+                            content: `
+                                <p class="mb-4">Las propiedades de una relación se pueden visualizar en su grafo. Una relación simétrica tiene aristas bidireccionales, mientras que una relación reflexiva tiene un bucle en cada nodo. Observa los siguientes ejemplos para identificar sus propiedades.</p>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="bg-white p-4 rounded-lg shadow-md">
+                                        <h4 class="font-bold">Relación Simétrica</h4>
+                                        <p class="text-sm">Ej: A={1,2,3}, R={(1,2), (2,1), (2,3), (3,2)}</p>
+                                        <div class="mt-2 text-center text-lg font-mono">1 &harr; 2 &harr; 3</div>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-md">
+                                        <h4 class="font-bold">Relación Reflexiva y Transitiva</h4>
+                                        <p class="text-sm">Ej: A={1,2,3}, R={(1,1), (2,2), (3,3), (1,2), (2,3), (1,3)}</p>
+                                        <div class="mt-2 text-center text-lg font-mono">
+                                            <span>&#8634;1 &rarr; &#8634;2 &rarr; &#8634;3</span><br>
+                                            <span class="text-sm">(y 1 &rarr; 3)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `
+                        },
+                        {
+                            title: "Relevancia para la Programación",
+                            content: `<p>Las relaciones son el concepto central en las <strong>bases de datos relacionales</strong>, donde las tablas se vinculan entre sí. Comprender sus propiedades es crucial para el diseño de esquemas de bases de datos eficientes. La representación de relaciones como grafos permite aplicar algoritmos de grafos para su análisis.</p>`
+                        }
+                    ]
+                },
+                 unidad6: {
+                    title: "Unidad 6: Recta en el Plano",
+                    sections: [
+                        {
+                            title: "Conceptos Esenciales",
+                            content: `
+                                <p>La recta se define por su <strong>pendiente (m)</strong> y su <strong>ordenada al origen (b)</strong>. Las formas de la ecuación son:</p>
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><strong>Explícita:</strong> y = mx + b</li>
+                                    <li><strong>General:</strong> Ax + By + C = 0</li>
+                                    <li><strong>Punto-Pendiente:</strong> y - y₁ = m(x - x₁)</li>
+                                </ul>
+                                <p>Dos rectas son <strong>paralelas</strong> si m₁ = m₂, y <strong>perpendiculares</strong> si m₁ · m₂ = -1.</p>
+                            `
+                        },
+                        {
+                            title: "Herramienta: Graficador de Rectas",
+                            content: `
+                                <p class="mb-4">Visualiza cómo la pendiente y la ordenada al origen afectan la gráfica de una recta. Ajusta los valores y observa cómo cambia la línea en tiempo real. Esto te ayudará a construir una intuición sobre la ecuación explícita y = mx + b.</p>
+                                <div class="bg-white p-4 rounded-lg shadow-md">
+                                    <div class="flex flex-wrap gap-4 items-center">
+                                        <label for="slopeInput">Pendiente (m): <input type="number" id="slopeInput" value="1" step="0.5" class="w-20 border rounded p-1"></label>
+                                        <label for="interceptInput">Ord. Origen (b): <input type="number" id="interceptInput" value="1" step="0.5" class="w-20 border rounded p-1"></label>
+                                        <button id="plotLineBtn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Graficar</button>
+                                    </div>
+                                    <div class="chart-container mt-4">
+                                        <canvas id="lineCanvas"></canvas>
+                                    </div>
+                                </div>`
+                        },
+                        {
+                            title: "Relevancia para la Programación",
+                            content: `<p>Es la base para gráficos por computadora (rasterización de líneas), transformaciones 2D y detección de colisiones en videojuegos. La capacidad de modelar relaciones lineales es un paso previo para la programación lineal y problemas de optimización.</p>`
+                        }
+                    ]
+                },
+                unidad7: {
+                    title: "Unidad 7: Sistemas de Ecuaciones e Inecuaciones",
+                    sections: [
+                        {
+                            title: "Conceptos Esenciales",
+                            content: `
+                                <p>Un sistema de ecuaciones lineales puede ser:</p>
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><strong>Consistente Determinado:</strong> Solución única (rectas que se cortan).</li>
+                                    <li><strong>Consistente Indeterminado:</strong> Infinitas soluciones (rectas coincidentes).</li>
+                                    <li><strong>Inconsistente:</strong> Sin solución (rectas paralelas).</li>
+                                </ul>
+                                <p>El <strong>Teorema de Rouché-Frobenius</strong> usa el rango de las matrices para clasificar el sistema sin resolverlo. La <strong>Programación Lineal</strong> usa sistemas de inecuaciones para encontrar soluciones óptimas (máximos/mínimos) sujetas a un conjunto de restricciones lineales.</p>
+                            `
+                        },
+                        {
+                            title: "Visualización: Tipos de Sistemas de Ecuaciones",
+                            content: `
+                                <p class="mb-4">La solución de un sistema de dos ecuaciones lineales con dos variables puede interpretarse como la intersección de dos rectas en un plano. Usa los botones para visualizar cada tipo de sistema y su correspondiente representación gráfica.</p>
+                                <div class="bg-white p-4 rounded-lg shadow-md">
+                                    <div class="flex justify-center gap-2 mb-4">
+                                        <button class="sys-btn bg-blue-500 text-white px-3 py-1 rounded" data-type="determinado">Determinado</button>
+                                        <button class="sys-btn bg-gray-300 text-black px-3 py-1 rounded" data-type="indeterminado">Indeterminado</button>
+                                        <button class="sys-btn bg-gray-300 text-black px-3 py-1 rounded" data-type="inconsistente">Inconsistente</button>
+                                    </div>
+                                    <div id="system-info" class="text-center mb-2 font-mono text-sm"></div>
+                                    <div class="chart-container">
+                                        <canvas id="systemCanvas"></canvas>
+                                    </div>
+                                </div>
+                            `
+                        },
+                        {
+                            title: "Relevancia para la Programación",
+                            content: `<p>Los sistemas de ecuaciones modelan problemas de asignación de recursos, planificación y redes. La Programación Lineal es la base de algoritmos de optimización ampliamente utilizados en software para logística, horarios y diseño de redes.</p>`
+                        }
+                    ]
+                },
+                unidad8: {
+                    title: "Unidad 8: Análisis Combinatorio",
+                    sections: [
+                        {
+                            title: "Conceptos Esenciales",
+                            content: `
+                                <p>El análisis combinatorio estudia las formas de agrupar y ordenar elementos.</p>
+                                <ul class="list-disc list-inside space-y-2">
+                                    <li><strong>Permutación (P<sub>n</sub> = n!):</strong> Importa el orden, se usan todos los elementos.</li>
+                                    <li><strong>Arreglo (A<sup>n</sup><sub>k</sub>):</strong> Importa el orden, se usa un subconjunto de k elementos.</li>
+                                    <li><strong>Combinación (C<sup>n</sup><sub>k</sub>):</strong> No importa el orden, se usa un subconjunto de k elementos.</li>
+                                </ul>
+                                <p>El <strong>Teorema del Binomio de Newton</strong> expande potencias de un binomio usando coeficientes binomiales.</p>
+                            `
+                        },
+                        {
+                            title: "Herramienta: Calculadora Combinatoria",
+                            content: `
+                                <p class="mb-4">Usa esta calculadora para resolver rápidamente problemas de arreglos y combinaciones. Esto es útil para verificar tus ejercicios y para desarrollar una intuición sobre cómo crecen estas funciones.</p>
+                                <div class="bg-white p-4 rounded-lg shadow-md">
+                                    <div class="flex flex-wrap gap-4 items-center">
+                                        <label for="comb_n">n (total): <input type="number" id="comb_n" value="10" class="w-20 border rounded p-1"></label>
+                                        <label for="comb_k">k (a elegir): <input type="number" id="comb_k" value="3" class="w-20 border rounded p-1"></label>
+                                    </div>
+                                    <div class="mt-4 flex gap-2">
+                                        <button id="calcArregloBtn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Calcular Arreglo (A)</button>
+                                        <button id="calcCombBtn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Calcular Combinación (C)</button>
+                                    </div>
+                                    <div id="combinatoricsResult" class="mt-4 space-y-2 font-mono"></div>
+                                </div>`
+                        },
+                        {
+                            title: "Relevancia para la Programación",
+                            content: `<p>Es fundamental para estimar la <strong>complejidad de algoritmos</strong> (predecir rendimiento), en pruebas de software (generar todos los casos posibles), y en criptografía (entender la fuerza de las contraseñas). También es la base de la teoría de la probabilidad, vital para IA y simulaciones.</p>`
+                        }
+                    ]
+                }
+            };
+
+            let currentChart = null;
+            let currentLineChart = null;
+            let currentSystemChart = null;
+
+            function renderUnit(unitId) {
+                mainContent.innerHTML = '';
+                const unitData = appData[unitId];
+                if (!unitData) return;
+
+                const title = document.createElement('h2');
+                title.className = "text-3xl font-bold mb-6 text-gray-100"; /* Texto claro para el título */
+                title.textContent = unitData.title;
+                mainContent.appendChild(title);
+
+                if (unitData.content) {
+                    const contentDiv = document.createElement('div');
+                    contentDiv.innerHTML = unitData.content;
+                    contentDiv.classList.add('text-gray-200'); /* Texto claro para el contenido general */
+                    mainContent.appendChild(contentDiv);
+                }
+
+                if (unitData.sections) {
+                    unitData.sections.forEach((section, index) => {
+                        const sectionDiv = document.createElement('div');
+                        sectionDiv.className = 'content-section bg-gray-700 rounded-lg shadow mb-4'; /* Fondo más oscuro para secciones */
+                        
+                        const header = document.createElement('h3');
+                        header.className = 'text-xl font-semibold p-4 border-b border-gray-600 flex justify-between items-center text-gray-100'; /* Borde y texto claro */
+                        header.innerHTML = `<span>${section.title}</span><span class="transform transition-transform duration-300">&#9662;</span>`;
+                        
+                        const content = document.createElement('div');
+                        content.className = 'content p-4 text-gray-200'; /* Texto claro para el contenido de la sección */
+                        content.innerHTML = section.content;
+
+                        sectionDiv.appendChild(header);
+                        sectionDiv.appendChild(content);
+                        mainContent.appendChild(sectionDiv);
+
+                        header.addEventListener('click', () => {
+                            sectionDiv.classList.toggle('open');
+                            const icon = header.querySelector('span:last-child');
+                            icon.style.transform = sectionDiv.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+                        });
+
+                        if(index === 0) {
+                             setTimeout(() => header.click(), 100);
+                        }
+                    });
+                }
+                
+                if (unitId === 'unidad1') setupUnit1Converter();
+                if (unitId === 'unidad2') setupUnit2LogicGates();
+                if (unitId === 'unidad3') setupUnit3Determinant();
+                if (unitId === 'unidad4') setupUnit4Graph();
+                if (unitId === 'unidad6') setupUnit6LinePlotter();
+                if (unitId === 'unidad7') setupUnit7SystemPlotter();
+                if (unitId === 'unidad8') setupUnit8Combinatorics();
+
+            }
+
+            function setupUnit1Converter() {
+                const convertBtn = document.getElementById('convertBtn');
+                const decimalInput = document.getElementById('decimalInput');
+                const resultsDiv = document.getElementById('conversionResults');
+                convertBtn.addEventListener('click', () => {
+                    const dec = parseInt(decimalInput.value);
+                    if (isNaN(dec)) {
+                        resultsDiv.innerHTML = '<p class="text-red-400">Por favor, introduce un número válido.</p>'; /* Rojo más suave para modo oscuro */
+                        return;
+                    }
+                    resultsDiv.innerHTML = `
+                        <p><strong>Binario:</strong> ${dec.toString(2)}</p>
+                        <p><strong>Octal:</strong> ${dec.toString(8)}</p>
+                        <p><strong>Hexadecimal:</strong> ${dec.toString(16).toUpperCase()}</p>
+                    `;
+                });
+            }
+
+            function setupUnit2LogicGates() {
+                const inputA = document.getElementById('gateInputA');
+                const inputB = document.getElementById('gateInputB');
+                const outputsDiv = document.getElementById('gateOutputs');
+
+                function updateGates() {
+                    const a = inputA.checked;
+                    const b = inputB.checked;
+                    outputsDiv.innerHTML = `
+                        <p>A AND B: <span class="font-bold text-blue-400">${Number(a && b)}</span></p> /* Azul más suave */
+                        <p>A OR B: <span class="font-bold text-blue-400">${Number(a || b)}</span></p>
+                        <p>NOT A: <span class="font-bold text-blue-400">${Number(!a)}</span></p>
+                        <p>A XOR B: <span class="font-bold text-blue-400">${Number(a !== b)}</span></p>
+                    `;
+                }
+                inputA.addEventListener('change', updateGates);
+                inputB.addEventListener('change', updateGates);
+                updateGates();
+            }
+            
+            function setupUnit3Determinant() {
+                const calcDetBtn = document.getElementById('calcDetBtn');
+                calcDetBtn.addEventListener('click', () => {
+                    const a = parseFloat(document.getElementById('det_a').value);
+                    const b = parseFloat(document.getElementById('det_b').value);
+                    const c = parseFloat(document.getElementById('det_c').value);
+                    const d = parseFloat(document.getElementById('det_d').value);
+                    const result = (a * d) - (b * c);
+                    document.getElementById('determinantResult').textContent = result;
+                });
+                calcDetBtn.click();
+            }
+
+            function setupUnit4Graph() {
+                const ctx = document.getElementById('graphCanvas').getContext('2d');
+                 if (currentChart) {
+                    currentChart.destroy();
+                }
+                currentChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Vértices',
+                            data: [{x: 1, y: 4}, {x: 2, y: 1}, {x: 3, y: 5}, {x: 4, y: 2}, {x: 5, y: 4}],
+                            backgroundColor: 'rgb(255, 99, 132)',
+                            pointRadius: 6,
+                        }, {
+                            type: 'line',
+                            label: 'Aristas',
+                            data: [{x: 1, y: 4}, {x: 2, y: 1}, {x: 4, y: 2}, {x: 3, y: 5}, {x: 5, y: 4}, {x: 1, y: 4}],
+                            borderColor: 'rgb(54, 162, 235)',
+                            fill: false,
+                            tension: 0,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { 
+                                beginAtZero: true, 
+                                max: 6,
+                                grid: { color: 'rgba(255,255,255,0.1)' }, /* Líneas de la cuadrícula más claras */
+                                ticks: { color: '#e2e8f0' } /* Texto de los ejes más claro */
+                            },
+                            y: { 
+                                beginAtZero: true, 
+                                max: 6,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#e2e8f0' }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#e2e8f0' /* Color de las etiquetas de la leyenda */
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            function setupUnit6LinePlotter() {
+                const ctx = document.getElementById('lineCanvas').getContext('2d');
+                const slopeInput = document.getElementById('slopeInput');
+                const interceptInput = document.getElementById('interceptInput');
+                const plotBtn = document.getElementById('plotLineBtn');
+
+                function plotLine() {
+                    if(currentLineChart) {
+                        currentLineChart.destroy();
+                    }
+                    const m = parseFloat(slopeInput.value);
+                    const b = parseFloat(interceptInput.value);
+                    
+                    const data = [];
+                    for(let x = -10; x <= 10; x++) {
+                        data.push({x: x, y: m * x + b});
+                    }
+
+                    currentLineChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            datasets: [{
+                                label: `y = ${m}x + ${b}`,
+                                data: data,
+                                borderColor: 'rgb(75, 192, 192)',
+                                tension: 0.1,
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: { 
+                                    type: 'linear', 
+                                    position: 'bottom',
+                                    grid: { color: 'rgba(255,255,255,0.1)' },
+                                    ticks: { color: '#e2e8f0' }
+                                },
+                                y: { 
+                                    grid: { color: 'rgba(255,255,255,0.1)' },
+                                    ticks: { color: '#e2e8f0' }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#e2e8f0'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                plotBtn.addEventListener('click', plotLine);
+                plotLine();
+            }
+
+            function setupUnit7SystemPlotter() {
+                const ctx = document.getElementById('systemCanvas').getContext('2d');
+                const buttons = document.querySelectorAll('.sys-btn');
+                const infoDiv = document.getElementById('system-info');
+
+                const systems = {
+                    determinado: {
+                        label1: 'y = -x + 5',
+                        data1: [{x: -5, y: 10}, {x: 10, y: -5}],
+                        label2: 'y = 2x - 1',
+                        data2: [{x: -5, y: -11}, {x: 10, y: 19}],
+                        info: 'Determinado: Las rectas se cortan en un punto (solución única).'
+                    },
+                    indeterminado: {
+                        label1: 'y = 0.5x + 2',
+                        data1: [{x: -5, y: -0.5}, {x: 10, y: 7}],
+                        label2: '2y = x + 4',
+                        data2: [{x: -5, y: -0.5}, {x: 10, y: 7}],
+                        info: 'Indeterminado: Las rectas son coincidentes (infinitas soluciones).'
+                    },
+                    inconsistente: {
+                        label1: 'y = 2x + 3',
+                        data1: [{x: -5, y: -7}, {x: 10, y: 23}],
+                        label2: 'y = 2x - 1',
+                        data2: [{x: -5, y: -11}, {x: 10, y: 19}],
+                        info: 'Inconsistente: Las rectas son paralelas (sin solución).'
+                    }
+                };
+
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        buttons.forEach(b => b.classList.replace('bg-blue-500', 'bg-gray-700')); /* Botones inactivos más oscuros */
+                        btn.classList.replace('bg-gray-700', 'bg-blue-500'); /* Botón activo azul */
+                        plotSystem(btn.dataset.type);
+                    });
+                });
+                
+                plotSystem('determinado');
+            }
+            
+            function setupUnit8Combinatorics() {
+                const nInput = document.getElementById('comb_n');
+                const kInput = document.getElementById('comb_k');
+                const calcArregloBtn = document.getElementById('calcArregloBtn');
+                const calcCombBtn = document.getElementById('calcCombBtn');
+                const resultDiv = document.getElementById('combinatoricsResult');
+
+                function factorial(num) {
+                    if (num < 0) return -1;
+                    if (num === 0) return 1;
+                    let result = 1;
+                    for (let i = 2; i <= num; i++) {
+                        result *= i;
+                    }
+                    return result;
+                }
+
+                calcArregloBtn.addEventListener('click', () => {
+                    const n = parseInt(nInput.value);
+                    const k = parseInt(kInput.value);
+                    if (n < k || n < 0 || k < 0) {
+                        resultDiv.innerHTML = '<p class="text-red-400">Error: n debe ser >= k y ambos no negativos.</p>';
+                        return;
+                    }
+                    const result = factorial(n) / factorial(n-k);
+                    resultDiv.innerHTML = `<p>Arreglo A(${n}, ${k}) = ${result.toLocaleString('es-ES')}</p>`;
+                });
+                
+                calcCombBtn.addEventListener('click', () => {
+                    const n = parseInt(nInput.value);
+                    const k = parseInt(kInput.value);
+                     if (n < k || n < 0 || k < 0) {
+                        resultDiv.innerHTML = '<p class="text-red-400">Error: n debe ser >= k y ambos no negativos.</p>';
+                        return;
+                    }
+                    const result = factorial(n) / (factorial(k) * factorial(n-k));
+                    resultDiv.innerHTML = `<p>Combinación C(${n}, ${k}) = ${result.toLocaleString('es-ES')}</p>`;
+                });
+            }
+
+            // Navigation handler
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    navLinks.forEach(l => l.classList.remove('active-link'));
+                    this.classList.add('active-link');
+
+                    const unitId = this.getAttribute('href').substring(1);
+                    renderUnit(unitId);
+
+                    if (sidebar.classList.contains('translate-x-0')) {
+                       sidebar.classList.add('-translate-x-full');
+                       sidebar.classList.remove('translate-x-0');
+                    }
+                });
+            });
+
+            // Mobile menu toggle
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+                sidebar.classList.toggle('translate-x-0');
+            });
+
+            // Initial render
+            renderUnit('introduccion');
+        });
+    </script>
+</body>
+</html>
